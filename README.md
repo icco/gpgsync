@@ -20,8 +20,4 @@ Linux users should follow these [simple instructions](https://github.com/firstlo
 
 A Windows port is being tracked here: [Issue #79](https://github.com/firstlookmedia/gpgsync/issues/79)
 
-## Test Status
-
-[![CircleCI](https://circleci.com/gh/firstlookmedia/gpgsync.svg?style=shield&circle-token=8c35e705699711e0aff4934b4adef5b9e02e738d)](https://circleci.com/gh/firstlookmedia/gpgsync)
-
 ![Screenshot](./logo/screenshot.png)
