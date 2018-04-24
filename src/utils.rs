@@ -2,6 +2,9 @@ use std::env;
 use std::path::PathBuf;
 use std::fs::File;
 use std::io::{Read, BufReader};
+use gdk;
+use gtk;
+use gtk::prelude::*;
 
 use error::{Error, ErrorKind};
 
@@ -48,4 +51,29 @@ pub fn get_version_string() -> Result<String, Error> {
     };
 
     Ok(contents.trim().to_string())
+}
+
+pub fn load_stylesheet() {
+    log("utils", "load_stylesheet");
+
+    match gdk::Screen::get_default() {
+        Some(screen) => {
+            let css_path = match get_resource_path("style.css") {
+                Ok(val) => val,
+                Err(err) => { panic!("Error getting resource path: {:?}", err); },
+            };
+            let css_path_str = match css_path.to_str() {
+                Some(val) => val,
+                None => "",
+            };
+            let css_provider = gtk::CssProvider::new();
+            match css_provider.load_from_path(css_path_str) {
+                Ok(_) => {},
+                Err(err) => { panic!("Error loading css: {:?}", err); },
+            };
+
+            gtk::StyleContext::add_provider_for_screen(&screen, &css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        },
+        None => {},
+    };
 }

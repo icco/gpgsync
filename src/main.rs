@@ -5,73 +5,37 @@ extern crate gio;
 use gtk::prelude::*;
 
 mod error;
-mod common;
+mod utils;
 
-use common::{log, get_resource_path, get_version_string};
+use utils::{log, get_resource_path};
 
 fn main() {
-    let version_string = match get_version_string() {
-        Ok(val) => val,
-        Err(err) => { panic!("Error getting version string: {:?}", err); },
-    };
-
+    let version_string = utils::get_version_string().unwrap();
     log("main", &format!("starting GPG Sync {}", &version_string));
 
-    let _app = match gtk::Application::new("org.firstlookmedia.gpgsync", gio::ApplicationFlags::empty()) {
-        Ok(val) => val,
-        Err(err) => { panic!("Failed to initialize GTK app: {:?}", err); },
-    };
+    // Initialize the GTK app
+    let _app = gtk::Application::new("org.firstlookmedia.gpgsync", gio::ApplicationFlags::empty()).unwrap();
 
     // Load stylesheet
-    match gdk::Screen::get_default() {
-        Some(screen) => {
-            let css_path = match get_resource_path("style.css") {
-                Ok(val) => val,
-                Err(err) => { panic!("Error getting resource path: {:?}", err); },
-            };
-            let css_path_str = match css_path.to_str() {
-                Some(val) => val,
-                None => "",
-            };
-            let css_provider = gtk::CssProvider::new();
-            match css_provider.load_from_path(css_path_str) {
-                Ok(_) => {},
-                Err(err) => { panic!("Error loading css: {:?}", err); },
-            };
+    utils::load_stylesheet();
 
-            gtk::StyleContext::add_provider_for_screen(&screen, &css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
-        },
-        None => {},
-    };
-
-    // Window
+    // Create window
     let window = gtk::Window::new(gtk::WindowType::Toplevel);
     window.set_title("GPG Sync");
-    //window.set_border_width(0);
-    window.set_default_size(400, 200);
+    window.set_border_width(10);
     window.connect_delete_event(|_, _| {
         gtk::main_quit();
         Inhibit(false)
     });
 
-    /*// Header bar
-    let logo_path = match get_resource_path("gpgsync.png") {
-        Ok(val) => val,
-        Err(err) => { panic!("Error getting resource path: {:?}", err); },
-    };
+    // Logo
+    let logo_path = get_resource_path("gpgsync.png").unwrap();
     let logo = gtk::Image::new_from_file(logo_path);
-    let header_bar = gtk::HeaderBar::new();
-    header_bar.pack_start(&logo);
-    header_bar.set_title("GPG Sync");
-    window.set_titlebar(&header_bar);*/
 
     // Status bar
     let version_label = gtk::Label::new(Some(version_string.as_str()));
     let statusbar = gtk::Statusbar::new();
-    let statusbar_box = match statusbar.get_message_area() {
-        Some(val) => val,
-        None => { panic!("Error getting statusbar message area"); },
-    };
+    let statusbar_box = statusbar.get_message_area().unwrap();
     statusbar_box.pack_end(&version_label, false, false, 0);
 
     // Add endpoint button
@@ -85,19 +49,13 @@ fn main() {
 
     // Box layout
     let box_layout = gtk::Box::new(gtk::Orientation::Vertical, 10);
+    box_layout.pack_start(&logo, false, false, 0);
     box_layout.pack_start(&add_button, false, false, 0);
     box_layout.pack_end(&statusbar, false, false, 0);
 
     // Start the GUI
     window.add(&box_layout);
     window.show_all();
-
-    // When the window is closed, quit
-    window.connect_delete_event(|_, _| {
-        log("main", "window closed");
-        gtk::main_quit();
-        Inhibit(false)
-    });
 
     gtk::main();
 }
