@@ -77,3 +77,23 @@ pub fn load_stylesheet() {
         None => {},
     };
 }
+
+// Add a CSS class to a GTK widget
+pub fn add_class<T: gtk::WidgetExt>(widget: &T, class_name: &str) {
+    match widget.get_style_context() {
+        Some(style_context) => {
+            style_context.add_class(class_name);
+        },
+        None => {}
+    };
+}
+
+// Remove a CSS class to a GTK widget
+pub fn remove_class<T: gtk::WidgetExt>(widget: &T, class_name: &str) {
+    match widget.get_style_context() {
+        Some(style_context) => {
+            style_context.remove_class(class_name);
+        },
+        None => {}
+    };
+}

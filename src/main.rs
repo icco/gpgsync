@@ -40,12 +40,7 @@ fn main() {
 
     // Add endpoint button
     let add_button = gtk::Button::new_with_label("Add First GPG Sync Endpoint");
-    match add_button.get_style_context() {
-        Some(style_context) => {
-            style_context.add_class("add-button");
-        },
-        None => {}
-    };
+    utils::add_class(&add_button, "add-button");
 
     // Box layout
     let box_layout = gtk::Box::new(gtk::Orientation::Vertical, 10);
