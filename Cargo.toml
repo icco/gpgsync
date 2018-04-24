@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Micah Lee <micah@micahflee.com>"]
 
 [dependencies]
+gdk = "0.8.0"
 #openpgp = { git = "https://gitlab.com/sequoia-pgp/sequoia.git" }
 
 [dependencies.gtk]

@@ -1,4 +1,5 @@
 extern crate gtk;
+extern crate gdk;
 
 use gtk::prelude::*;
 
@@ -19,6 +20,28 @@ fn main() {
         println!("Failed to initialize GTK.");
         return;
     }
+
+    // Load stylesheet
+    match gdk::Screen::get_default() {
+        Some(screen) => {
+            let css_path = match get_resource_path("style.css") {
+                Ok(val) => val,
+                Err(err) => { panic!("Error getting resource path: {:?}", err); },
+            };
+            let css_path_str = match css_path.to_str() {
+                Some(val) => val,
+                None => "",
+            };
+            let css_provider = gtk::CssProvider::new();
+            match css_provider.load_from_path(css_path_str) {
+                Ok(_) => {},
+                Err(err) => { panic!("Error loading css: {:?}", err); },
+            };
+
+            gtk::StyleContext::add_provider_for_screen(&screen, &css_provider, gtk::STYLE_PROVIDER_PRIORITY_APPLICATION);
+        },
+        None => {},
+    };
 
     // Window
     let window = gtk::Window::new(gtk::WindowType::Toplevel);
@@ -49,13 +72,28 @@ fn main() {
     };
     statusbar_box.pack_end(&version_label, false, false, 0);
 
+    // Add endpoint button
+    let add_button = gtk::Button::new_with_label("Add First GPG Sync Endpoint");
+    match add_button.get_style_context() {
+        Some(style_context) => {
+            style_context.add_class("add-button");
+        },
+        None => {}
+    };
+
     // Box layout
     let box_layout = gtk::Box::new(gtk::Orientation::Vertical, 10);
+    box_layout.pack_start(&add_button, false, false, 0);
     box_layout.pack_end(&statusbar, false, false, 0);
 
     // Start the GUI
     window.add(&box_layout);
     window.show_all();
+
+    window.connect_delete_event(|_, _| {
+        gtk::main_quit();
+        Inhibit(false)
+    });
 
     gtk::main();
 }
