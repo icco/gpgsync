@@ -1,5 +1,6 @@
 extern crate gtk;
 extern crate gdk;
+extern crate gio;
 
 use gtk::prelude::*;
 
@@ -16,10 +17,10 @@ fn main() {
 
     log("main", &format!("starting GPG Sync {}", &version_string));
 
-    if gtk::init().is_err() {
-        println!("Failed to initialize GTK.");
-        return;
-    }
+    let _app = match gtk::Application::new("org.firstlookmedia.gpgsync", gio::ApplicationFlags::empty()) {
+        Ok(val) => val,
+        Err(err) => { panic!("Failed to initialize GTK app: {:?}", err); },
+    };
 
     // Load stylesheet
     match gdk::Screen::get_default() {
@@ -45,6 +46,7 @@ fn main() {
 
     // Window
     let window = gtk::Window::new(gtk::WindowType::Toplevel);
+    window.set_title("GPG Sync");
     //window.set_border_width(0);
     window.set_default_size(400, 200);
     window.connect_delete_event(|_, _| {
@@ -52,7 +54,7 @@ fn main() {
         Inhibit(false)
     });
 
-    // Header bar
+    /*// Header bar
     let logo_path = match get_resource_path("gpgsync.png") {
         Ok(val) => val,
         Err(err) => { panic!("Error getting resource path: {:?}", err); },
@@ -61,7 +63,7 @@ fn main() {
     let header_bar = gtk::HeaderBar::new();
     header_bar.pack_start(&logo);
     header_bar.set_title("GPG Sync");
-    window.set_titlebar(&header_bar);
+    window.set_titlebar(&header_bar);*/
 
     // Status bar
     let version_label = gtk::Label::new(Some(version_string.as_str()));
@@ -90,7 +92,9 @@ fn main() {
     window.add(&box_layout);
     window.show_all();
 
+    // When the window is closed, quit
     window.connect_delete_event(|_, _| {
+        log("main", "window closed");
         gtk::main_quit();
         Inhibit(false)
     });

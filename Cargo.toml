@@ -5,6 +5,7 @@ authors = ["Micah Lee <micah@micahflee.com>"]
 
 [dependencies]
 gdk = "0.8.0"
+gio = "0.4.0"
 #openpgp = { git = "https://gitlab.com/sequoia-pgp/sequoia.git" }
 
 [dependencies.gtk]
